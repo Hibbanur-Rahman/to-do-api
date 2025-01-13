@@ -5,9 +5,9 @@ const httpStatusCode = require("../constant/httpStatusCode");
 // Function to add a task to a user
 const AddTask = async (req, res) => {
   try {
-    const { taskName, completed, tags } = req.body;
+    const { taskName, completed, tags,description,priority,startDate,endDate } = req.body;
     const userId = req.user._id; // Assuming you have a middleware to extract user info (req.user)
-
+console.log("hello",req.body)
     // Find the user by ID
     const user = await UserModel.findById(userId);
 
@@ -24,6 +24,10 @@ const AddTask = async (req, res) => {
       taskName,
       completed,
       tags,
+      description,
+      priority,
+      startDate,
+      endDate
     });
 
     // Save the new task

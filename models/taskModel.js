@@ -8,6 +8,10 @@ const TaskSchema = new mongoose.Schema({
       type: String,
       required: true,
     },
+    description:{
+      type:String,
+      required:false,
+    },
     completed: {
       type: Boolean,
       default: false,
@@ -16,6 +20,18 @@ const TaskSchema = new mongoose.Schema({
       type: String,
       required: false
     },
+    priority:{
+      type:String,
+      required:false
+    },
+    startDate:{
+      type:Date,
+      required:false,
+    },
+    endDate:{
+      type:Date,
+      required:false,
+    }
   }, { timestamps: true });
 
   module.exports = mongoose.model("task", TaskSchema);
