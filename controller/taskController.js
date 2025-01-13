@@ -1,6 +1,7 @@
 const TaskModel = require("../models/taskModel"); // Import Task model
 const UserModel = require("../models/userModel");
 const httpStatusCode = require("../constant/httpStatusCode");
+const { default: mongoose } = require("mongoose");
 
 // Function to add a task to a user
 const AddTask = async (req, res) => {
@@ -153,12 +154,9 @@ const UpdateCompleted = async (req, res) => {
       });
     }
 
-    const task = await TaskModel.findByIdAndUpdate(
-      { taskItemId },
-      {
-        completed: true,
-      }
-    );
+    const task = await TaskModel.findByIdAndUpdate(taskItemId, {
+      completed: true,
+    });
     if (!task) {
       return res.status(httpStatusCode.NOT_FOUND).json({
         success: false,
@@ -265,5 +263,5 @@ module.exports = {
   ViewTask,
   UpdateCompleted,
   DeleteTask,
-  getTasksByGroup
+  getTasksByGroup,
 };
