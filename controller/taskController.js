@@ -5,9 +5,17 @@ const httpStatusCode = require("../constant/httpStatusCode");
 // Function to add a task to a user
 const AddTask = async (req, res) => {
   try {
-    const { taskName, completed, tags,description,priority,startDate,endDate } = req.body;
+    const {
+      taskName,
+      completed,
+      tags,
+      description,
+      priority,
+      startDate,
+      endDate,
+    } = req.body;
     const userId = req.user._id; // Assuming you have a middleware to extract user info (req.user)
-console.log("hello",req.body)
+
     // Find the user by ID
     const user = await UserModel.findById(userId);
 
@@ -27,7 +35,7 @@ console.log("hello",req.body)
       description,
       priority,
       startDate,
-      endDate
+      endDate,
     });
 
     // Save the new task
@@ -128,7 +136,7 @@ const ViewTask = async (req, res) => {
 
 const UpdateCompleted = async (req, res) => {
   try {
-    const {taskItemId } = req.body;
+    const { taskItemId } = req.body;
     if (!taskItemId) {
       return res.status(httpStatusCode.BAD_REQUEST).json({
         success: false,
@@ -145,16 +153,18 @@ const UpdateCompleted = async (req, res) => {
       });
     }
 
-    const task=await TaskModel.findByIdAndUpdate({taskItemId},{
-      completed:true
-    })
-    if(!task){
+    const task = await TaskModel.findByIdAndUpdate(
+      { taskItemId },
+      {
+        completed: true,
+      }
+    );
+    if (!task) {
       return res.status(httpStatusCode.NOT_FOUND).json({
         success: false,
         message: "task is not found!!",
       });
     }
-    
 
     return res.status(httpStatusCode.OK).json({
       success: true,
@@ -173,7 +183,7 @@ const UpdateCompleted = async (req, res) => {
 const DeleteTask = async (req, res) => {
   try {
     const taskId = req.params.id; // Access taskId from route params
-    const userId = req.user._id;  // Assuming you have a middleware to extract user info (req.user)
+    const userId = req.user._id; // Assuming you have a middleware to extract user info (req.user)
 
     // Find the user by ID
     const user = await UserModel.findById(userId);
@@ -186,7 +196,10 @@ const DeleteTask = async (req, res) => {
     }
 
     // Find the task and delete it
-    const deletedTask = await TaskModel.findOneAndDelete({ _id: taskId, userId });
+    const deletedTask = await TaskModel.findOneAndDelete({
+      _id: taskId,
+      userId,
+    });
 
     if (!deletedTask) {
       return res.status(httpStatusCode.NOT_FOUND).json({
@@ -203,7 +216,6 @@ const DeleteTask = async (req, res) => {
       success: true,
       message: "Task deleted successfully",
     });
-
   } catch (error) {
     console.error("Error deleting task:", error);
     return res.status(httpStatusCode.INTERNAL_SERVER_ERROR).json({
@@ -214,4 +226,44 @@ const DeleteTask = async (req, res) => {
   }
 };
 
-module.exports = { AddTask, EditTask, ViewTask, UpdateCompleted,DeleteTask };
+const getTasksByGroup = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    console.log(userId);
+    const { groupName } = req.params;
+    // Find the user and populate their tasks
+    const user = await UserModel.findById(userId).populate("tasks");
+    if (!user) {
+      return res.status(httpStatusCode.NOT_FOUND).json({
+        success: false,
+        message: "user is not found",
+      });
+    }
+    const tasks = [];
+    user.tasks.forEach((task) => {
+      if (task.tags === groupName) {
+        tasks.push(task);
+      }
+    });
+    return res.status(httpStatusCode.OK).json({
+      success: true,
+      message: "successfully found tasks!!",
+      data: tasks,
+    });
+  } catch (error) {
+    console.error("Error getting tasks:", error);
+    return res.status(httpStatusCode.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Something went wrong!",
+      error: error.message,
+    });
+  }
+};
+module.exports = {
+  AddTask,
+  EditTask,
+  ViewTask,
+  UpdateCompleted,
+  DeleteTask,
+  getTasksByGroup
+};
